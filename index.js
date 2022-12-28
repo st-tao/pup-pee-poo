@@ -1,11 +1,35 @@
 const todaysDate = document.getElementById('todays-date');
 todaysDate.innerHTML = getTodaysDate();
 
-var testData = createTestData();
-var todaysData = testData;
+var todaysData = localStorage.getItem('todaysData');
+setupLocalStorage();
+
 setupTable(todaysData);
 
-function createTestData() {
+function setupLocalStorage() {
+    let today = localStorage.getItem('todaysDate');
+    // new user has nothing stored locally
+    if (today === null || todaysData === null) {
+        localStorage.setItem('todaysDate', getTodaysDate())
+        todaysData = getDefaultData();
+        localStorage.setItem('todaysData', JSON.stringify(todaysData));
+    } else {
+        // returning user
+        // if data is NOT from today, reset 
+        if (today != getTodaysDate()) {
+            todaysData = getDefaultData();
+            localStorage.setItem('todaysData', JSON.stringify(todaysData));
+            localStorage.setItem('todaysDate', getTodaysDate());
+        } else {
+            // data is from today
+            todaysData = JSON.parse(localStorage.getItem('todaysData'))
+        }
+    }
+
+}
+
+
+function getDefaultData() {
     let testData = new Object();
     for (let i=6; i<24; i=i+0.5) {
         let currHour = Math.floor(i).toString();
@@ -18,7 +42,6 @@ function createTestData() {
             'accident': false,
         };
     };
-    console.log(testData);
     return testData;
 }
 
@@ -97,5 +120,6 @@ function flipButton(timeId, type) {
         icon.className = oldClassName + "-fill";
     };
     todaysData[timeId][type] = !todaysData[timeId][type];
+    localStorage.setItem('todaysData', JSON.stringify(todaysData));
 }
 
